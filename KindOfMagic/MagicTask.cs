@@ -142,46 +142,40 @@ namespace KindOfMagic
             Log.LogMessage("Magic happens with {0}.", Assembly);
             try
             {
-                Log.LogMessage("Enchanting assembly...#6");
                 using (var resolver = new PreloadingAssemblyResolver(References))
                 {
-                    Log.LogMessage("Enchanting assembly...#3");
                     var parameters = MakeReaderParameters(Assembly, resolver);
-                    Log.LogMessage("Enchanting assembly...#4");
                     using (var assembly = AssemblyDefinition.ReadAssembly(Assembly, parameters))
                     {
-                        Log.LogMessage("Enchanting assembly...#5");
-                        using (var processor = new Processor(parameters.AssemblyResolver, assembly.MainModule)
+                        var processor = new Processor(parameters.AssemblyResolver, assembly.MainModule)
                         {
                             MagicAttributeName = MagicAttribute,
                             NoMagicAttributeName = NoMagicAttribute,
                             RaiseMethodName = RaiseMethod,
                             BeaconMethodName = BeaconMethod,
                             Logger = TaskLogger
-                        })
+                        };
+
+                        if (!processor.NeedProcessing)
                         {
-                            if (!processor.NeedProcessing)
-                            {
-                                Log.LogMessage("Assembly is already enchanted.");
-                                return true;
-                            }
+                            Log.LogMessage("Assembly is already enchanted.");
+                            return true;
+                        }
 
-                            Log.LogMessage("Enchanting assembly...");
-                            var result = processor.Process();
+                        Log.LogMessage("Enchanting assembly...");
+                        var result = processor.Process();
 
-                            switch (result)
-                            {
-                                case MagicResult.NoMagicFound: Log.LogMessage("No Magic attributes found..."); return true;
-                                case MagicResult.NoMagicNeeded: Log.LogMessage("Enchanting not needed..."); break;
-                                case MagicResult.MagicApplied: Log.LogMessage("Enchanted successfully..."); break;
-                            }
+                        switch (result)
+                        {
+                            case MagicResult.NoMagicFound: Log.LogMessage("No Magic attributes found..."); return true;
+                            case MagicResult.NoMagicNeeded: Log.LogMessage("Enchanting not needed..."); break;
+                            case MagicResult.MagicApplied: Log.LogMessage("Enchanted successfully..."); break;
                         }
 
                         if (KeyFile != null)
                             Log.LogMessage("Resigning enchanted assembly with key from {0}...", KeyFile);
 
-                        assembly.Write(Assembly, MakeWriterParameters(Assembly, KeyFile));
-                        Log.LogMessage("Enchanted successfully...#2");
+                        assembly.Write(MakeWriterParameters(Assembly, KeyFile));
                     }
                 }
                 return true;
@@ -222,15 +216,13 @@ namespace KindOfMagic
                         if (corlib.PublicKeyToken[0] == 124 && !resolver.NoGAC)
                             resolver.AddSilverlightDirectories(corlib.Version.Major);
 
-                        using (var processor = new Processor(parameters.AssemblyResolver, assembly.MainModule))
+                        var processor = new Processor(parameters.AssemblyResolver, assembly.MainModule);
+                        switch (processor.Process())
                         {
-                            switch (processor.Process())
-                            {
-                                case MagicResult.MagicApplied:
-                                case MagicResult.NoMagicNeeded:
-                                    assembly.Write(file, MakeWriterParameters(file, null));
-                                    break;
-                            }
+                            case MagicResult.MagicApplied:
+                            case MagicResult.NoMagicNeeded:
+                                assembly.Write(file, MakeWriterParameters(file, null));
+                                break;
                         }
                     }
                 }

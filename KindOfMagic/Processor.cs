@@ -36,7 +36,7 @@ namespace KindOfMagic
     /// <summary>
     /// Only classes which implement INotifyPropertyChanged are inspected
     /// </summary>
-    internal class Processor : IDisposable
+    internal class Processor
     {
         private readonly ModuleDefinition _module;
         private readonly HashSet<string> _magic = new HashSet<string>();
@@ -47,12 +47,6 @@ namespace KindOfMagic
         {
             _resolver = resolver;
             _module = module;
-        }
-
-        public void Dispose()
-        {
-            //_module.Dispose();
-            ////_resolver.Dispose();
         }
 
         public LogDelegate Logger;
