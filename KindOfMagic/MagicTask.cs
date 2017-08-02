@@ -105,17 +105,13 @@ namespace KindOfMagic
             {
                 foreach (var dll in references)
                 {
-                    try
+                    using (var assembly = ModuleDefinition.ReadModule(dll, new ReaderParameters { AssemblyResolver = this, ReadWrite = false }).Assembly)
                     {
-                        using (var assembly = ModuleDefinition.ReadModule(dll, new ReaderParameters { AssemblyResolver = this, ReadWrite = true }).Assembly)
-                        {
-                            if (assembly.Name.Name == "System.Runtime")
-                                _systemRuntime = assembly;
+                        if (assembly.Name.Name == "System.Runtime")
+                            _systemRuntime = assembly;
 
-                            RegisterAssembly(assembly);
-                        }
+                        RegisterAssembly(assembly);
                     }
-                    catch (UnauthorizedAccessException) { }
                 }
             }
 
@@ -221,7 +217,7 @@ namespace KindOfMagic
                         {
                             case MagicResult.MagicApplied:
                             case MagicResult.NoMagicNeeded:
-                                assembly.Write(file, MakeWriterParameters(file, null));
+                                assembly.Write(MakeWriterParameters(file, null));
                                 break;
                         }
                     }
