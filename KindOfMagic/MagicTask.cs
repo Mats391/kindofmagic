@@ -27,7 +27,7 @@ namespace KindOfMagic
         {
             public PreloadingAssemblyResolver(string references)
             {
-                ////Load(references);
+                Load(references);
             }
 
             public bool NoGAC;
