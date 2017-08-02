@@ -103,26 +103,22 @@ namespace KindOfMagic
 
         private void LogWarning(string format, params object[] args)
         {
-            if (Logger != null)
-                Logger(LogLevel.Warning, format, args);
+            Logger?.Invoke(LogLevel.Warning, format, args);
         }
 
         private void LogError(string format, params object[] args)
         {
-            if (Logger != null)
-                Logger(LogLevel.Error, format, args);
+            Logger?.Invoke(LogLevel.Error, format, args);
         }
 
         private void LogMessage(string format, params object[] args)
         {
-            if (Logger != null)
-                Logger(LogLevel.Message, format, args);
+            Logger?.Invoke(LogLevel.Message, format, args);
         }
 
         private void LogVerbose(string format, params object[] args)
         {
-            if (Logger != null)
-                Logger(LogLevel.Verbose, format, args);
+            Logger?.Invoke(LogLevel.Verbose, format, args);
         }
 
         #region Processing Label logic
@@ -343,9 +339,11 @@ namespace KindOfMagic
             if (method != null && type.HasGenericParameters)
             {
                 var genericType = type.MakeGenericInstanceType(type.GenericParameters.ToArray());
-                var genericMethod = new MethodReference(method.Name, method.ReturnType, genericType);
-                genericMethod.CallingConvention = method.CallingConvention;
-                genericMethod.HasThis = method.HasThis;
+                var genericMethod = new MethodReference(method.Name, method.ReturnType, genericType)
+                {
+                    CallingConvention = method.CallingConvention,
+                    HasThis = method.HasThis
+                };
                 if (method.HasParameters)
                     foreach (var i in method.Parameters)
                         genericMethod.Parameters.Add(i);
@@ -658,16 +656,16 @@ namespace KindOfMagic
             if (!includeSystem && reference != null && (reference.FullName.StartsWith("System.") || reference.FullName.StartsWith("Windows.")))
                 return null;
 
-            return reference != null ? reference.Resolve() : null;
+            return reference?.Resolve();
         }
 
         private MethodReference MakeGeneric(MethodReference method, TypeReference declaringType)
         {
-            var reference = new MethodReference(method.Name, method.ReturnType, declaringType);
-
-            reference.HasThis = method.HasThis;
-            reference.CallingConvention = method.CallingConvention;
-
+            var reference = new MethodReference(method.Name, method.ReturnType, declaringType)
+            {
+                HasThis = method.HasThis,
+                CallingConvention = method.CallingConvention
+            };
             foreach (var parameter in method.Parameters)
                 reference.Parameters.Add(new ParameterDefinition(parameter.ParameterType));
 
@@ -798,8 +796,7 @@ namespace KindOfMagic
         /// </summary>
         private static TypeDefinition GetUnderlyingType(TypeReference type)
         {
-            var git = type as GenericInstanceType;
-            if (git != null && git.Name.StartsWith("Nullable`"))
+            if (type is GenericInstanceType git && git.Name.StartsWith("Nullable`"))
                 return git.GenericArguments[0].Resolve();
 
             return null;
@@ -812,9 +809,7 @@ namespace KindOfMagic
         /// </summary>
         private int SizeOf(TypeReference type)
         {
-            var result = 0;
-
-            if (_sizeCache.TryGetValue(type, out result))
+            if (_sizeCache.TryGetValue(type, out int result))
                 return result;
 
             result = 4;
