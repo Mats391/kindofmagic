@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\KindOfMagic.Demo\TestClass.cs" Link="TestClass.cs" />
+  </ItemGroup>
+
+  <Import Project="C:\KindOfMagic.netstandard.targets" Sdk="Microsoft.NET.Sdk" />
+  
+</Project>
