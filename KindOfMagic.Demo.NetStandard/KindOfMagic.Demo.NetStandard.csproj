@@ -8,6 +8,6 @@
     <Compile Include="..\KindOfMagic.Demo\TestClass.cs" Link="TestClass.cs" />
   </ItemGroup>
 
-  <Import Project="$(KINDOFMAGIC)\KindOfMagic.targets" />
+  <Import Project="$(KINDOFMAGIC)\KindOfMagic.netstandard.targets" />
   
 </Project>
