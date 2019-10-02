@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
-
-#if NETFX_CORE
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-#else
-
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-#endif
+using System.Collections.ObjectModel;
 
 namespace KindOfMagic.Tests
 {

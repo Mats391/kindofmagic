@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KindOfMagic.Demo", "KindOfMagic.Demo\KindOfMagic.Demo.csproj", "{D71C96BD-1568-42D1-9E29-62ADF62A4767}"
 EndProject
@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KindOfMagic.Tests", "KindOf
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KindOfMagic.Demo.NetStandard", "KindOfMagic.Demo.NetStandard\KindOfMagic.Demo.NetStandard.csproj", "{0C300E09-D635-477B-9EE0-94680E3EF300}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KindOfMagic.Tests.NetStandard", "KindOfMagic.Tests.NetStandard\KindOfMagic.Tests.NetStandard.csproj", "{9A0E582A-CA32-4D1B-9347-6679226C9EB6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KindOfMagic.Tests.NetStandard", "KindOfMagic.Tests.NetStandard\KindOfMagic.Tests.NetStandard.csproj", "{9A0E582A-CA32-4D1B-9347-6679226C9EB6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
