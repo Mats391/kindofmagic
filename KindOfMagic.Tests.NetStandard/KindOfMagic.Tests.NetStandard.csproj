@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <RootNamespace>KindOfMagic.Tests.NetStandard</RootNamespace>
     <AssemblyName>KindOfMagic.Tests.NetStandard</AssemblyName>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

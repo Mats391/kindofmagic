@@ -2,6 +2,7 @@
 using Mono.Cecil.Cil;
 using Mono.Cecil.Rocks;
 using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -151,41 +152,17 @@ namespace KindOfMagic
         /// </summary>
         private CustomAttribute CreateLabel()
         {
-            var winRT = _module.AssemblyReferences.Any(i => i.Name == "Windows"); // winrt
-
             var stringType = _module.TypeSystem.String;
-            using (var system = GetAssemblyRef(winRT ? "mscorlib" : "System"))
-            {
-                var codeAttr = winRT ? T_AssemblyMetadataAttribute : T_GeneratedCodeAttribute;
 
-                var baseAttr = system.MainModule.GetType(codeAttr);
-                if (baseAttr == null)
-                {
-                    var attr = system.MainModule.ExportedTypes.Single(i => i.FullName == codeAttr);
-                    baseAttr = attr.Resolve();
-                }
+            var ctor = _module.ImportReference(typeof(GeneratedCodeAttribute).GetConstructor(new[] { typeof(string), typeof(string) }));
+            var baseCtor = _module.ImportReference(ctor);
 
-                var ctor = baseAttr.Methods.First(m => m.IsConstructor && m.Parameters.Count == 2);
-                var baseCtor = _module.ImportReference(ctor);
+            var result = new CustomAttribute(baseCtor);
 
-                var result = new CustomAttribute(baseCtor);
+            result.ConstructorArguments.Add(new CustomAttributeArgument(stringType, "KindOfMagic"));
+            result.ConstructorArguments.Add(new CustomAttributeArgument(stringType, "1.0"));
 
-                result.ConstructorArguments.Add(new CustomAttributeArgument(stringType, "KindOfMagic"));
-                result.ConstructorArguments.Add(new CustomAttributeArgument(stringType, "1.0"));
-
-                return result;
-            }
-        }
-
-        private AssemblyDefinition GetAssemblyRef(string name)
-        {
-            var corlib = (AssemblyNameReference)_module.TypeSystem.CoreLibrary;
-
-            // Workaround to get System.dll
-            if (corlib.PublicKeyToken[0] != 124) // public key differs for SL & NETFX
-                return _resolver.Resolve(AssemblyNameReference.Parse(name));
-
-            return _resolver.Resolve(new AssemblyNameReference(name, corlib.Version) { PublicKeyToken = corlib.PublicKeyToken });
+            return result;
         }
 
         #endregion Processing Label logic
@@ -209,7 +186,7 @@ namespace KindOfMagic
             return _magic.Count > 0;
         }
 
-        private HashSet<string> _processed = new HashSet<string>();
+        private readonly HashSet<string> _processed = new HashSet<string>();
 
         private void FindMagic(ModuleDefinition module)
         {
@@ -328,8 +305,6 @@ namespace KindOfMagic
 
         private MethodReference ImportMethod(TypeDefinition type, MethodReference method)
         {
-            var original = method;
-
             if (method != null && type.HasGenericParameters)
             {
                 var genericType = type.MakeGenericInstanceType(type.GenericParameters.ToArray());
@@ -796,7 +771,7 @@ namespace KindOfMagic
             return null;
         }
 
-        private Dictionary<TypeReference, int> _sizeCache = new Dictionary<TypeReference, int>();
+        private readonly Dictionary<TypeReference, int> _sizeCache = new Dictionary<TypeReference, int>();
 
         /// <summary>
         /// Hack to determine size of a struct/value type

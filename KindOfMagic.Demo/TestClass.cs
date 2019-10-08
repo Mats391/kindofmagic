@@ -55,9 +55,8 @@ namespace KindOfMagic
 
         public override bool Equals(object o)
         {
-            if (o is Color)
+            if (o is Color color)
             {
-                Color color = (Color)o;
                 return (this == color);
             }
             return false;
@@ -202,9 +201,7 @@ namespace KindOfMagic
 
         protected void RaisePropertyChanged(string propName)
         {
-            var e = PropertyChanged;
-            if (e != null)
-                e(this, new PropertyChangedEventArgs(propName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
 
             LastPropertyChanged = propName;
         }
@@ -721,9 +718,7 @@ namespace KindOfMagic
 
         protected void RaisePropertyChanged(string propName)
         {
-            var e = PropertyChanged;
-            if (e != null)
-                e(this, new PropertyChangedEventArgs(propName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
 
             LastPropertyChanged = propName;
         }

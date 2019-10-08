@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net48</TargetFramework>
     <RootNamespace>KindOfMagic</RootNamespace>
     <AssemblyName>KindOfMagic.Demo</AssemblyName>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
