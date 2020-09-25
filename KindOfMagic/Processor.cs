@@ -264,11 +264,19 @@ namespace KindOfMagic
                             // must have assembly, class or property level Magic attribute applied
                             where job.ClassLevel || prop.CustomAttributes.ContainsAttributeFrom(_magic)
                             // select task related data
-                            select new { Job = job, Property = prop };
+                            select new
+                            {
+                                Job = job, 
+                                Property = prop,
+                                ExtraProps = prop.CustomAttributes.Where(x => _magic.Contains(x.AttributeType.FullName))
+                                    .SelectMany(x => x.ConstructorArguments)
+                                    .Select(x => x.Value)
+                                    .OfType<string>()
+                            };
 
                 foreach (var task in tasks)
                 {
-                    ProcessProperty(task.Property, task.Job.Raise, task.Job.IsRaiseVirtual);
+                    ProcessProperty(task.Property, task.Job.Raise, task.Job.IsRaiseVirtual, task.ExtraProps);
                     processed++;
                 }
             }
@@ -354,7 +362,7 @@ namespace KindOfMagic
             return x == null ? @default : x.Magic;
         }
 
-        private void ProcessProperty(PropertyDefinition p, MethodReference raise, bool isVirtual)
+        private void ProcessProperty(PropertyDefinition p, MethodReference raise, bool isVirtual, IEnumerable<string> extraProperties)
         {
             if (p.SetMethod.Body == null) return;
 
@@ -554,12 +562,18 @@ namespace KindOfMagic
 
             #region this.RaisePropertyChanged(p.Name);
 
-            ops.Ldarg_0();
-            ops.Ldstr(p.Name);
-            if (isVirtual)
-                ops.Callvirt(raise);
-            else
-                ops.Call(raise);
+            AddRaisePropertyChanged(p.Name);
+
+            foreach (var prop in extraProperties)
+            {
+                if (p.DeclaringType.Properties.All(x => x.Name != prop))
+                {
+                    LogWarning($"Could not find property '{prop}' in Type {p.DeclaringType.Name}");
+                    continue;
+                }
+
+                AddRaisePropertyChanged(prop);
+            }
 
             #endregion this.RaisePropertyChanged(p.Name);
 
@@ -601,6 +615,16 @@ namespace KindOfMagic
 
                 if (hasRetJumps)
                     LogWarning("Property {0}.{1} setter is too complex. Use beacon method (static void {2}()) to indicate point of {3} injection.", p.DeclaringType.FullName, p.Name, BeaconMethodName, RaiseMethodName);
+            }
+
+            void AddRaisePropertyChanged(string prop)
+            {
+                ops.Ldarg_0();
+                ops.Ldstr(prop);
+                if (isVirtual)
+                    ops.Callvirt(raise);
+                else
+                    ops.Call(raise);
             }
         }
 
