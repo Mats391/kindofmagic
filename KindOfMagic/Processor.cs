@@ -270,8 +270,21 @@ namespace KindOfMagic
                                 Property = prop,
                                 ExtraProps = prop.CustomAttributes.Where(x => _magic.Contains(x.AttributeType.FullName))
                                     .SelectMany(x => x.ConstructorArguments)
-                                    .Select(x => x.Value)
-                                    .OfType<string>()
+                                    .SelectMany(x =>
+                                    {
+                                        if (x.Value is CustomAttributeArgument arg)
+                                        {
+                                            return new[] { arg.Value }.OfType<string>();
+                                        }
+                                        else if (x.Value is CustomAttributeArgument[] args)
+                                        {
+                                            return args.Select(a => a.Value).OfType<string>();
+                                        }
+                                        else
+                                        {
+                                            return new[] {arg.Value}.OfType<string>();
+                                        }
+                                    })
                             };
 
                 foreach (var task in tasks)
@@ -563,7 +576,6 @@ namespace KindOfMagic
             #region this.RaisePropertyChanged(p.Name);
 
             AddRaisePropertyChanged(p.Name);
-
             foreach (var prop in extraProperties)
             {
                 if (p.DeclaringType.Properties.All(x => x.Name != prop))
